@@ -18,6 +18,9 @@ CREATE TABLE Job_history(employee_id Smallint, start_date Date, end_date Date NU
 
 ALTER TABLE Departments ADD(manager_id Smallint, CONSTRAINT manager_fk FOREIGN KEY (manager_id) REFERENCES Employees(employee_id));
 
+//dodany self foreign key o którym zapomnia³em
+ALTER TABLE Employees ADD CONSTRAINT emp_self_fk FOREIGN KEY (manager_id) REFERENCES Employees(employee_id);
+
 //Drop table i flashback + przywrócenie fk
 DROP TABLE Regions CASCADE CONSTRAINTS;
 
