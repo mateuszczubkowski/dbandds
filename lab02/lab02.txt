@@ -1,0 +1,59 @@
+//I
+DROP TABLE Regions CASCADE CONSTRAINTS;
+DROP TABLE Countries CASCADE CONSTRAINTS;
+DROP TABLE Locations CASCADE CONSTRAINTS;
+DROP TABLE Jobs CASCADE CONSTRAINTS;
+DROP TABLE Job_history CASCADE CONSTRAINTS;
+DROP TABLE Departments CASCADE CONSTRAINTS;
+DROP TABLE Employees CASCADE CONSTRAINTS;
+
+//II
+ALTER TABLE Regions ADD CONSTRAINT region_pk PRIMARY KEY (REGION_ID) ENABLE;
+ALTER TABLE Countries ADD CONSTRAINT country_region_fk FOREIGN KEY (REGION_ID) REFERENCES Regions(REGION_ID) ENABLE;
+ALTER TABLE Countries ADD CONSTRAINT country_pk PRIMARY KEY (COUNTRY_ID) ENABLE;
+ALTER TABLE Locations ADD CONSTRAINT location_country_fk FOREIGN KEY (COUNTRY_ID) REFERENCES Countries(COUNTRY_ID) ENABLE;
+ALTER TABLE Locations ADD CONSTRAINT location_pk PRIMARY KEY (LOCATION_ID) ENABLE;
+ALTER TABLE Jobs ADD CONSTRAINT job_pk PRIMARY KEY (JOB_ID) ENABLE;
+ALTER TABLE Employees ADD CONSTRAINT employee_pk PRIMARY KEY (EMPLOYEE_ID) ENABLE;
+ALTER TABLE Job_history ADD CONSTRAINT job_history_pk PRIMARY KEY (EMPLOYEE_ID, START_DATE) ENABLE;
+ALTER TABLE Departments ADD CONSTRAINT department_pk PRIMARY KEY (DEPARTMENT_ID) ENABLE;
+ALTER TABLE Job_history ADD CONSTRAINT jhistory_job_fk FOREIGN KEY (JOB_ID) REFERENCES Jobs(JOB_ID) ENABLE;
+ALTER TABLE Job_history ADD CONSTRAINT jhistory_department_fk FOREIGN KEY (DEPARTMENT_ID) REFERENCES Departments(DEPARTMENTS_ID) ENABLE;
+ALTER TABLE Departments ADD CONSTRAINT department_location_fk FOREIGN KEY (LOCATION_ID) REFERENCES Locations(LOCATION_ID) ENABLE;
+ALTER TABLE Employees ADD CONSTRAINT employee_job_fk FOREIGN KEY (JOB_ID) REFERENCES Jobs(JOB_ID) ENABLE;
+ALTER TABLE Employees ADD CONSTRAINT employee_department_fk FOREIGN KEY (DEPARTMENT_ID) REFERENCES Departments(DEPARTMENT_ID) ENABLE;
+ALTER TABLE Employees ADD CONSTRAINT employee_self_fk FOREIGN KEY (MANAGER_ID) REFERENCES Employees(EMPLOYEE_ID) ENABLE;
+ALTER TABLE Departments ADD CONSTRAINT department_manager_fk FOREIGN KEY (MANAGER_ID) REFERENCES Employees(EMPLOYEE_ID) ENABLE;
+
+
+//III
+//1 +
+CREATE VIEW cw_jeden AS SELECT last_name || ' ' || salary AS Wynagrodzenie FROM Employees WHERE (department_id = 20 OR department_id = 50) AND salary < 7000 AND salary > 2000 ORDER BY last_name;
+
+//2 +-?
+CREATE VIEW cw_dwa AS SELECT hire_date, last_name FROM Employees WHERE manager_id IS NOT NULL AND EXTRACT(YEAR from hire_date) = 2005;
+
+//3 +-?
+CREATE VIEW cw_trzy AS SELECT first_name || ' ' || last_name AS Nazwisko, salary, phone_number FROM Employees WHERE SUBSTR(last_name, 3,3) = 'e' AND first_name LIKE '%dane_u¿ytkownika%' ORDER BY 1 DESC, 2 ASC;
+
+//4 + 
+CREATE VIEW cw_cztery AS SELECT first_name, last_name, ROUND(MONTHS_BETWEEN(CURRENT_DATE, hire_date)) AS Przepracowane_miesiace,
+    (CASE WHEN ROUND(MONTHS_BETWEEN(CURRENT_DATE, hire_date)) < 150 THEN 0.1 * salary 
+    WHEN ROUND(MONTHS_BETWEEN(CURRENT_DATE, hire_date)) > 200 THEN 0.3 * salary
+    ELSE 0.2 * salary END) AS wysokosc_dodatku  FROM Employees ORDER BY 3 DESC;
+
+//5
+CREATE VIEW cw_piec AS SELECT WHERE min_
+
+//6
+CREATE VIEW cwiczenie6 AS SELECT second_name, department_id, department_name, job_id FROM Employees WHERE miejscepracy = Toronto;
+
+//7 +-
+CREATE VIEW cw_siedem AS SELECT a.first_name, a.last_name, b.first_name || ' ' || b.last_name AS wspolpracownicy FROM Employees a JOIN Employees b ON b.department_id = a.department_id WHERE a.first_name = 'Jennifer' ORDER BY a.last_name;
+
+//8 +
+CREATE VIEW cw_osiem AS SELECT * FROM Departments d WHERE NOT EXISTS (SELECT 1 FROM Job_history j WHERE j.department_id = d.department_id);
+
+//9
+
+
