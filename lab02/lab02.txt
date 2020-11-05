@@ -27,33 +27,42 @@ ALTER TABLE Departments ADD CONSTRAINT department_manager_fk FOREIGN KEY (MANAGE
 
 
 //III
-//1 +
+//1 ++
 CREATE VIEW cw_jeden AS SELECT last_name || ' ' || salary AS Wynagrodzenie FROM Employees WHERE (department_id = 20 OR department_id = 50) AND salary < 7000 AND salary > 2000 ORDER BY last_name;
 
-//2 +-?
-CREATE VIEW cw_dwa AS SELECT hire_date, last_name FROM Employees WHERE manager_id IS NOT NULL AND EXTRACT(YEAR from hire_date) = 2005;
+//2 ++
+CREATE VIEW cw_dwa AS SELECT hire_date, last_name, &column_name FROM Employees WHERE manager_id IS NOT NULL AND EXTRACT(YEAR from hire_date) = 2005 ORDER BY &column_name;
 
-//3 +-?
-CREATE VIEW cw_trzy AS SELECT first_name || ' ' || last_name AS Nazwisko, salary, phone_number FROM Employees WHERE SUBSTR(last_name, 3,3) = 'e' AND first_name LIKE '%dane_u¿ytkownika%' ORDER BY 1 DESC, 2 ASC;
+//3 ++
+CREATE VIEW cw_trzy AS SELECT first_name || ' ' || last_name AS Nazwisko, salary, phone_number FROM Employees WHERE SUBSTR(last_name, 3,3) = 'e' AND first_name LIKE '%' || '&param' || '%' ORDER BY 1 DESC, 2 ASC;
 
-//4 + 
+//4  ++
 CREATE VIEW cw_cztery AS SELECT first_name, last_name, ROUND(MONTHS_BETWEEN(CURRENT_DATE, hire_date)) AS Przepracowane_miesiace,
     (CASE WHEN ROUND(MONTHS_BETWEEN(CURRENT_DATE, hire_date)) < 150 THEN 0.1 * salary 
     WHEN ROUND(MONTHS_BETWEEN(CURRENT_DATE, hire_date)) > 200 THEN 0.3 * salary
     ELSE 0.2 * salary END) AS wysokosc_dodatku  FROM Employees ORDER BY 3 DESC;
 
-//5
-CREATE VIEW cw_piec AS SELECT WHERE min_
+//5 ++
+CREATE VIEW cw_piec AS SELECT department_id, suma, srednia FROM(SELECT ROUND(SUM(salary)) AS suma, ROUND(AVG(salary)) AS srednia, ROUND(MIN(salary)) AS min, department_id FROM Employees GROUP BY department_id) WHERE min>5000;
 
-//6
-CREATE VIEW cwiczenie6 AS SELECT second_name, department_id, department_name, job_id FROM Employees WHERE miejscepracy = Toronto;
+//6 ++
+CREATE VIEW cwiczenie6 AS SELECT e.last_name, e.department_id, d.department_name, e.job_id FROM EMPLOYEES e INNER JOIN DEPARTMENTS d ON d.department_id = e.department_id INNER JOIN LOCATIONS l ON l.location_id = d.location_id WHERE l.city = 'Toronto';
 
-//7 +-
-CREATE VIEW cw_siedem AS SELECT a.first_name, a.last_name, b.first_name || ' ' || b.last_name AS wspolpracownicy FROM Employees a JOIN Employees b ON b.department_id = a.department_id WHERE a.first_name = 'Jennifer' ORDER BY a.last_name;
+//7 ++
+CREATE VIEW cw_siedem AS SELECT a.first_name, a.last_name, b.first_name || ' ' || b.last_name AS wspolpracownicy FROM Employees a INNER JOIN Employees b ON b.department_id = a.department_id WHERE a.first_name = 'Jennifer' ORDER BY a.last_name;
 
-//8 +
+//8 ++
 CREATE VIEW cw_osiem AS SELECT * FROM Departments d WHERE NOT EXISTS (SELECT 1 FROM Job_history j WHERE j.department_id = d.department_id);
 
 //9
+Skopiowane rêcznie przez SQL Developer
 
+//10
+CREATE VIEW cw_dziesiec AS SELECT e.first_name, e.last_name, e.job_id, d.department_name, e.salary, g.grade FROM Employees e JOIN Departments d ON e.department_id = d.department_id JOIN job_grades g ON (e.salary > g.min_salary AND e.salary < g.max_salary)
+
+//11
+CREATE OR REPLACE VIEW cw_jedenascie AS SELECT first_name, last_name, salary FROM Employees WHERE salary > (SELECT AVG(salary) FROM Employees) ORDER BY salary DESC
+
+//12
+CREATE VIEW cw_dwanascie AS SELECT employee_id, first_name, last_name FROM Employees WHERE department_id IN (SELECT department_id FROM Employees WHERE last_name LIKE '%u%')
 
