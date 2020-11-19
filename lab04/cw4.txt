@@ -1,0 +1,79 @@
+1.
+DECLARE
+    numer_max departments.department_id%TYPE;
+    new_name departments.department_name%TYPE:='EDUCATION';
+BEGIN
+    SELECT MAX(department_id) 
+    INTO numer_max 
+    FROM departments;
+    DBMS_OUTPUT.PUT_LINE('Maksymalny department_id ' || numer_max);
+    INSERT INTO departments values (numer_max + 10, new_name, null, null);
+END;
+
+2.
+DECLARE
+    new_name departments.department_name%TYPE:='EDUCATION';
+BEGIN
+    UPDATE departments
+    SET location_id = 3000
+    WHERE department_name = new_name;
+    DBMS_OUTPUT.PUT_LINE('Ustawiono nowe location_id dla departamentu o nazwie ' || new_name);
+END;
+
+3.
+Musia³em oddzielnie CREATE TABLE nowa(pole VARCHAR(10));
+
+DECLARE
+BEGIN
+    FOR i IN 1..10
+    LOOP
+        IF i <> 4 AND i <> 6
+            THEN INSERT INTO nowa values (i);
+        END IF;
+    END LOOP;
+END;
+
+4.
+DECLARE
+    ca_row countries%ROWTYPE;
+    ca_name countries.country_name%TYPE:='CA';
+BEGIN
+    SELECT *
+    INTO ca_row
+    FROM countries
+    WHERE country_id = ca_name;
+    DBMS_OUTPUT.PUT_LINE(ca_row.region_id || ' ' || ca_row.country_name);
+END;
+
+5.
+DECLARE
+    TYPE nazwadepartamentu IS TABLE OF
+    departments.department_name%TYPE INDEX BY PLS_INTEGER;
+    wynik nazwadepartamentu;
+BEGIN
+    FOR i IN 1..10
+    LOOP
+        SELECT department_name
+        INTO wynik(i)
+        FROM departments
+        WHERE department_id = i*10;
+        DBMS_OUTPUT.PUT_LINE(wynik(i));
+    END LOOP;
+END;
+
+6.
+DECLARE
+    TYPE nazwadepartamentu IS TABLE OF
+    departments%ROWTYPE INDEX BY PLS_INTEGER;
+    wynik nazwadepartamentu;
+BEGIN
+    FOR i IN 1..10
+    LOOP
+        SELECT *
+        INTO wynik(i)
+        FROM departments
+        WHERE department_id = i*10;
+        DBMS_OUTPUT.PUT_LINE(wynik(i).department_id || ' ' || wynik(i).department_name || ' '
+            || wynik(i).manager_id || ' ' || wynik(i).location_id);
+    END LOOP;
+END; 

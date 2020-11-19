@@ -1,0 +1,23 @@
+I.
+SELECT a.first_name || ' ' || a.last_name, a.salary, a.department_id AS Nazwisko
+FROM Employees a JOIN
+     (SELECT a.department_id, MAX(a.salary) AS maxsalary FROM Employees a
+      WHERE a.salary < (select MAX(salary) FROM Employees b WHERE b.department_id = a.department_id)
+      GROUP BY a.department_id
+     ) c ON a.department_id = c.department_id AND a.salary = c.maxsalary;
+
+II.
+CREATE TABLE Matches(match_id Smallint, home_team Varchar(40), away_team Varchar(40), home_goals Smallint, away_goals Smallint);
+
+INSERT INTO Matches values (1, 'fc_psy', 'fc_koty', 2, 1);
+INSERT INTO Matches values (2, 'fc_psy', 'fc_pingwin', 0, 1);
+INSERT INTO Matches values (3, 'fc_psy', 'fc_pajonk', 3, 2);
+INSERT INTO Matches values (4, 'fc_koty', 'fc_psy', 1, 1);
+INSERT INTO Matches values (5, 'fc_koty', 'fc_pingwin', 0, 2);
+INSERT INTO Matches values (6, 'fc_koty', 'fc_pajonk', 0, 0);
+INSERT INTO Matches values (7, 'fc_pingwin', 'fc_psy', 2, 1);
+INSERT INTO Matches values (8, 'fc_pingwin', 'fc_koty', 2, 2);
+INSERT INTO Matches values (9, 'fc_pingwin', 'fc_pajonk', 3, 1);
+INSERT INTO Matches values (10, 'fc_pajonk', 'fc_psy', 1, 3);
+INSERT INTO Matches values (11, 'fc_pajonk', 'fc_koty', 1, 2);
+INSERT INTO Matches values (12, 'fc_pajonk', 'fc_pingwin', 0, 2);
