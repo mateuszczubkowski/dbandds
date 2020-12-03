@@ -77,3 +77,42 @@ BEGIN
             || wynik(i).manager_id || ' ' || wynik(i).location_id);
     END LOOP;
 END; 
+
+7.
+DECLARE 
+CURSOR dept_50 IS
+    SELECT salary, last_name
+    FROM employees
+    WHERE department_id = 50;
+BEGIN
+    FOR wiersz IN dept_50
+    LOOP
+    IF wiersz.salary > 3100 THEN
+        DBMS_OUTPUT.put_line(wiersz.last_name || ' nie dawaæ podwy¿ki');
+    ELSE
+        DBMS_OUTPUT.put_line(wiersz.last_name || ' daæ podwy¿kê');
+    END IF;
+    END LOOP;
+END;
+        
+8.
+DECLARE 
+    CURSOR zad8 (min_sal NUMBER, max_sal NUMBER, last_name_char VARCHAR) IS
+    SELECT salary, first_name, last_name
+    FROM employees
+    WHERE salary > min_sal AND salary < max_sal AND (last_name LIKE LOWER('%' || last_name_char || '%')
+    OR last_name LIKE UPPER('%' || last_name_char || '%'));
+BEGIN
+    DBMS_OUTPUT.put_line('A');
+    FOR wiersz IN zad8(1000, 5000, 'a')
+    LOOP
+    DBMS_OUTPUT.put_line(wiersz.first_name || ' ' || wiersz.last_name || ' ' || wiersz.salary);
+    END LOOP;
+    DBMS_OUTPUT.put_line('B');
+    FOR wiersz IN zad8(5000, 20000, 'u')
+    LOOP
+    DBMS_OUTPUT.put_line(wiersz.first_name || ' ' || wiersz.last_name || ' ' || wiersz.salary);
+    END LOOP;
+END;
+
+9.
