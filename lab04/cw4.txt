@@ -116,3 +116,28 @@ BEGIN
 END;
 
 9.
+a.
+CREATE OR REPLACE PROCEDURE zad9a(new_job_id IN VARCHAR, new_job_name IN VARCHAR) IS
+ex EXCEPTION;
+BEGIN
+    INSERT INTO jobs VALUES(new_job_id, new_job_name, NULL, NULL);
+    DBMS_OUTPUT.put_line(new_job_id || ' ' || new_job_name || ' added to Jobs');
+EXCEPTION
+    WHEN DUP_VAL_ON_INDEX THEN
+    DBMS_OUTPUT.put_line('Job with this id already exists');
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.put_line('Error occured');
+END;
+
+b. trzeba zrobic
+CREATE OR REPLACE PROCEDURE zad9b(edit_job_id IN VARCHAR, edit_job_name IN VARCHAR) IS
+ex EXCEPTION;
+BEGIN
+    UPDATE jobs SET job_title = edit_job_name
+    WHERE job_id = edit_job_id;
+EXCEPTION
+    WHEN DUP_VAL_ON_INDEX THEN
+    DBMS_OUTPUT.put_line('Job with this id already exists');
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.put_line('Error occured');
+END;
