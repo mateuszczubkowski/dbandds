@@ -129,15 +129,75 @@ EXCEPTION
     DBMS_OUTPUT.put_line('Error occured');
 END;
 
-b. trzeba zrobic
+b. 
 CREATE OR REPLACE PROCEDURE zad9b(edit_job_id IN VARCHAR, edit_job_name IN VARCHAR) IS
+wiersz jobs%ROWTYPE;
 ex EXCEPTION;
 BEGIN
+    SELECT * INTO wiersz FROM jobs WHERE job_id=edit_job_id;
     UPDATE jobs SET job_title = edit_job_name
     WHERE job_id = edit_job_id;
+    DBMS_OUTPUT.put_line('Edited job');
 EXCEPTION
-    WHEN DUP_VAL_ON_INDEX THEN
-    DBMS_OUTPUT.put_line('Job with this id already exists');
+    WHEN NO_DATA_FOUND THEN
+    dbms_output.put_line('No jobs updated');
     WHEN OTHERS THEN
     DBMS_OUTPUT.put_line('Error occured');
+END;
+
+c. 
+CREATE OR REPLACE PROCEDURE zad9c(delete_job_id IN VARCHAR) IS
+wiersz jobs%ROWTYPE;
+ex EXCEPTION;
+BEGIN
+    SELECT * INTO wiersz FROM jobs WHERE job_id=delete_job_id;
+    DELETE FROM jobs WHERE job_id = delete_job_id;
+    DBMS_OUTPUT.put_line('Job deleted');
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    dbms_output.put_line('No jobs deleted');
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.put_line('Error occured');
+END;
+
+d.
+CREATE OR REPLACE PROCEDURE zad9d(find_employee_id IN VARCHAR, sal OUT NUMBER, lastname OUT VARCHAR) IS
+ex EXCEPTION;
+BEGIN
+    SELECT * INTO salary, last_name INTO sal, lastname
+    FROM employees WHERE employee_id=find_employee_id;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.put_line('No employee found');
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.put_line('Error occured');
+END;
+
+e.
+CREATE OR REPLACE PROCEDURE zad9e(
+emp_id IN NUMBER DEFAULT employeeid_seq.nextval,
+emp_fname IN VARCHAR DEFAULT 'Jan',
+emp_lname IN VARCHAR DEFAULT 'Kowalski',
+emp_mail IN VARCHAR DEFAULT 'abc@mail.com',
+emp_edate IN DATE DEFAULT SYSDATE,
+emp_jobid IN VARCHAR DEFAULT 'SH_CLERK',
+emp_salary IN NUMBER DEFAULT 5000,
+emp_commision IN NUMBER DEFAULT 2,
+emp_managerid IN NUMBER DEFAULT 124,
+emp_depid IN NUMBER DEFAULT 50
+) IS
+ex EXCEPTION;
+BEGIN
+    IF emp_salary>20000 THEN
+	RAISE ex;
+    END IF;
+    INSERT INTO employees VALUES(emp_id, emp_fname, emp_lname, emp_mail, emp_mail, emp_edate, emp_jobid, emp_salary, 	emp_commision, emp_managerid, emp_depid);
+    DBMS_OUTPUT.put_line('Employee added');
+EXCEPTION
+    WHEN ex THEN
+    dbms_output.put_line('Salary is too high');
+    WHEN DUP_VAL_ON_INDEX THEN
+    DBMS_OUTPUT.put_line('Employee with this id already exists');
+    WHEN OTHERS THEN
+    dbms_output.put_line('Error occured');
 END;
