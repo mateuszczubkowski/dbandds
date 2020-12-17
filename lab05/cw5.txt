@@ -1,0 +1,64 @@
+1.
+CREATE OR REPLACE FUNCTION function1(jobid VARCHAR)
+RETURN VARCHAR IS
+title jobs.job_title%TYPE;
+BEGIN
+    SELECT job_title INTO title FROM jobs WHERE job_id = jobid;
+    RETURN title;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+           DBMS_OUTPUT.PUT_LINE('There is no job with given ID.'); 
+END function1;
+
+2.
+CREATE OR REPLACE FUNCTION function2(emplid NUMBER)
+RETURN NUMBER IS
+sal employees.salary%TYPE;
+compct employees.commission_pct%TYPE;
+BEGIN
+    SELECT salary, commission_pct INTO sal, compct FROM employees WHERE employee_id = emplid;
+    IF compct IS NULL THEN
+        RETURN sal*12;
+    END IF;
+    RETURN (sal * 12 + sal * compct);
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+           DBMS_OUTPUT.PUT_LINE('There is no employee with given ID.'); 
+END function2;
+
+3.
+CREATE OR REPLACE FUNCTION function3(phonenumber VARCHAR)
+RETURN VARCHAR IS
+BEGIN
+    RETURN '(' || SUBSTR(phonenumber, 1, 2) || ')' || SUBSTR(phonenumber, 3);
+END function3;
+
+4.
+CREATE OR REPLACE FUNCTION function4(napis VARCHAR)
+RETURN VARCHAR IS
+BEGIN
+    RETURN UPPER(SUBSTR(napis, 1, 1)) || LOWER(SUBSTR(napis, 2, LENGTH(napis) - 2)) || (SUBSTR(napis, -1, 1));
+END function4;
+
+5.
+CREATE OR REPLACE FUNCTION function5_date(pesel VARCHAR)
+RETURN DATE IS
+BEGIN
+    RETURN TO_DATE('19' || SUBSTR(pesel, 1, 2) || '-' || SUBSTR(pesel, 3, 2) || '-' || SUBSTR(pesel, 5, 2));
+END function5_date;
+CREATE OR REPLACE FUNCTION function5(pesel VARCHAR)
+RETURN VARCHAR IS
+BEGIN
+    RETURN '19' || SUBSTR(pesel, 1, 2) || '-' || SUBSTR(pesel, 3, 2) || '-' || SUBSTR(pesel, 5, 2);
+END function5;
+
+6. DO ZROBIENIA JESZCZE
+CREATE OR REPLACE FUNCTION function6(countryname VARCHAR)
+RETURN VARCHAR IS
+count_dep NUMBER;
+count_empl NUMBER;
+regid NUMBER;
+BEGIN
+    SELECT  INTO regid FROM countries WHERE country_name = countryname;
+    SELECT count(*) INTO count_dep FROM departments WHERE country_id
+END function6;
