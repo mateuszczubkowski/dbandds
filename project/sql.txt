@@ -1,0 +1,486 @@
+# sekwencje do autonumeracji
+# sales
+create sequence sales_sales_id_seq START WITH 1048576
+   owned by sales.salesid;
+
+alter table sales
+   alter column salesid set default nextval('sales_sales_id_seq');
+
+commit;
+
+# customers
+create sequence customers_customer_id_seq START WITH 19760
+   owned by customers.customerid;
+
+alter table customers
+   alter column customerid set default nextval('customers_customer_id_seq');
+
+commit;
+
+# produkty
+create sequence products_product_id_seq START WITH 505
+   owned by products.productid;
+
+alter table products
+   alter column productid set default nextval('products_product_id_seq');
+
+commit;
+
+# employees
+create sequence employees_employee_id_seq START WITH 24
+   owned by employees.employeeid;
+
+alter table employees
+   alter column employeeid set default nextval('employees_employee_id_seq');
+
+commit;
+
+# Procedury do dodawania
+# sales
+CREATE OR REPLACE PROCEDURE add_sale(new_salesperson_id INTEGER, new_customer_id INTEGER,
+    new_product_id INTEGER, new_quantity INTEGER, new_salesdate DATE) 
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    INSERT INTO sales(salespersonid, customerid, productid, quantity, salesdate) 
+    VALUES(new_salesperson_id, new_customer_id, new_product_id, new_quantity, new_salesdate);
+    
+    COMMIT;
+END;$$
+
+# customers
+CREATE OR REPLACE PROCEDURE add_customer(new_firstname VARCHAR, new_middleinitial VARCHAR,
+    new_lastname VARCHAR) 
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    INSERT INTO customers(firstname, middleinitial, lastname) 
+    VALUES(new_firstname, new_middleinitial, new_lastname);
+    
+    COMMIT;
+END;$$
+
+# products
+CREATE OR REPLACE PROCEDURE add_product(new_name VARCHAR, new_price NUMERIC) 
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    INSERT INTO products(name, price) 
+    VALUES(new_name, new_price);
+    
+    COMMIT;
+END;$$
+
+# employees
+CREATE OR REPLACE PROCEDURE add_employee(new_firstname VARCHAR, new_middleinitial VARCHAR,
+    new_lastname VARCHAR) 
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    INSERT INTO employees(firstname, middleinitial, lastname) 
+    VALUES(new_firstname, new_middleinitial, new_lastname);
+    
+    COMMIT;
+END;$$
+
+# Procedury do edycji
+# sales 
+CREATE OR REPLACE PROCEDURE edit_sale(sales_id INTEGER, new_salesperson_id INTEGER, new_customer_id INTEGER,
+    new_product_id INTEGER, new_quantity INTEGER, new_salesdate DATE) 
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    UPDATE sales SET salespersonid = new_salesperson_id,
+		customerid = new_customer_id,
+		productid = new_product_id,
+		quantity = new_quantity,
+		salesdate = new_salesdate
+    WHERE salesid = sales_id;
+    COMMIT;
+END;$$
+
+# customers
+CREATE OR REPLACE PROCEDURE edit_customer(customer_id INTEGER, new_firstname VARCHAR, new_middleinitial VARCHAR,
+    new_lastname VARCHAR) 
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    UPDATE customers SET firstname = new_firstname,
+		middleinitial = new_middleinitial,
+		lastname = new_lastname
+    WHERE customerid = customer_id;
+    COMMIT;
+END;$$
+
+# products
+CREATE OR REPLACE PROCEDURE edit_product(product_id INTEGER, new_name VARCHAR, new_price NUMERIC) 
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    UPDATE products SET name = new_name,
+		price = new_price
+    WHERE productid = product_id;
+    COMMIT;
+END;$$
+
+# employees
+CREATE OR REPLACE PROCEDURE edit_employee(employee_id INTEGER, new_firstname VARCHAR, new_middleinitial VARCHAR,
+    new_lastname VARCHAR) 
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    UPDATE employees SET firstname = new_firstname,
+		middleinitial = new_middleinitial,
+		lastname = new_lastname
+	WHERE employeeid = employee_id;
+    COMMIT;
+END;$$
+
+# procedury do usuwania
+# sales
+CREATE OR REPLACE PROCEDURE delete_sale(sales_id INTEGER) 
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    DELETE FROM sales WHERE salesid = sales_id;
+    COMMIT;
+END;$$
+
+# customers
+CREATE OR REPLACE PROCEDURE delete_customer(customer_id INTEGER) 
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    DELETE FROM customers WHERE customerid = customer_id;
+    COMMIT;
+END;$$
+
+# products
+CREATE OR REPLACE PROCEDURE delete_product(product_id INTEGER) 
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    DELETE FROM products WHERE productid = product_id;
+    COMMIT;
+END;$$
+
+# employees
+CREATE OR REPLACE PROCEDURE delete_employee(employee_id INTEGER) 
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    DELETE FROM employees WHERE employeeid = employee_id;
+    COMMIT;
+END;$$
+
+# tabele do archiwizacji
+# sales
+CREATE TABLE sales_deleted(
+                SalesId INTEGER,
+                SalesPersonId INTEGER,
+                CustomerId INTEGER,
+                ProductId INTEGER,
+                Quantity INTEGER,
+                SalesDate DATE,
+				DeletedAt DATE,
+				DeletedBy VARCHAR(255)
+        )
+
+# customers
+CREATE TABLE customers_deleted(
+				CustomerId INTEGER,
+				FirstName VARCHAR(255) NOT NULL,
+				MiddleInitial VARCHAR(1),
+				LastName VARCHAR(255) NOT NULL,
+				DeletedAt DATE,
+				DeletedBy VARCHAR(255)
+        )
+
+#products
+CREATE TABLE products_deleted(
+				ProductId INTEGER,
+				Name VARCHAR(255) NOT NULL,
+				Price NUMERIC NOT NULL,
+				DeletedAt DATE,
+				DeletedBy VARCHAR(255)
+        )
+
+# employees
+CREATE TABLE employees_deleted(
+                EmployeeId INTEGER,
+				FirstName VARCHAR(255) NOT NULL,
+				MiddleInitial VARCHAR(1),
+				LastName VARCHAR(255) NOT NULL,
+				DeletedAt DATE,
+				DeletedBy VARCHAR(255)
+        )
+
+# triggery
+# archiwizacja
+# sales
+CREATE OR REPLACE FUNCTION on_delete_sale() RETURNS TRIGGER
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    INSERT INTO sales_deleted VALUES (
+		OLD.salesid,
+		OLD.salespersonid,
+		OLD.customerid,
+		OLD.productid,
+		OLD.quantity,
+		OLD.salesdate,
+		current_date,
+		current_user
+	);
+	RETURN OLD;
+END;$$
+
+CREATE TRIGGER on_delete_sale
+BEFORE DELETE ON sales 
+FOR EACH ROW
+EXECUTE PROCEDURE on_delete_sale();
+
+# customers
+CREATE OR REPLACE FUNCTION on_delete_customer() RETURNS TRIGGER
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    INSERT INTO products_deleted VALUES (
+		OLD.customerid,
+		OLD.firstname,
+		OLD.middleinitial,
+		OLD.lastname,
+		current_date,
+		current_user
+	);
+	RETURN OLD;
+END;$$
+
+CREATE TRIGGER on_delete_customer
+BEFORE DELETE ON customers 
+FOR EACH ROW
+EXECUTE PROCEDURE on_delete_customer();
+
+# products
+CREATE OR REPLACE FUNCTION on_delete_product() RETURNS TRIGGER
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    INSERT INTO products_deleted VALUES (
+		OLD.productid,
+		OLD.name,
+		OLD.price,
+		current_date,
+		current_user
+	);
+	RETURN OLD;
+END;$$
+
+CREATE TRIGGER on_delete_product
+BEFORE DELETE ON products 
+FOR EACH ROW
+EXECUTE PROCEDURE on_delete_product();
+
+# employees
+CREATE OR REPLACE FUNCTION on_delete_employee() RETURNS TRIGGER
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    INSERT INTO employees_deleted VALUES (
+		OLD.employeeid,
+		OLD.firstname,
+		OLD.middleinitial,
+		OLD.lastname,
+		current_date,
+		current_user
+	);
+	RETURN OLD;
+END;$$
+
+CREATE TRIGGER on_delete_employee
+BEFORE DELETE ON employees 
+FOR EACH ROW
+EXECUTE PROCEDURE on_delete_employee();
+
+# logs
+CREATE TABLE logs(
+				EventDate DATE,
+				Username VARCHAR(255),
+				EventName VARCHAR(255),
+				TableName VARCHAR(255),
+				Address INET,
+				Port INT
+        )
+
+# triggery
+# sales
+CREATE OR REPLACE FUNCTION on_log_sales() RETURNS TRIGGER
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+	IF (TG_OP = 'INSERT') THEN
+		INSERT INTO logs VALUES (
+			current_date,
+			current_user,
+			'insert',
+			'sales',
+			inet_server_addr(),
+			inet_client_port()
+		);
+		RETURN NEW;
+	ELSIF (TG_OP = 'UPDATE') THEN
+		INSERT INTO logs VALUES (
+			current_date,
+			current_user,
+			'update',
+			'sales',
+			inet_server_addr(),
+			inet_client_port()
+		);
+		RETURN NEW;
+	ELSIF (TG_OP = 'DELETE') THEN
+		INSERT INTO logs VALUES (
+			current_date,
+			current_user,
+			'delete',
+			'sales',
+			inet_server_addr(),
+			inet_client_port()
+		);
+		RETURN OLD;
+	END IF;
+    RETURN NULL;
+END;$$
+
+CREATE TRIGGER on_log_sales
+AFTER INSERT OR UPDATE OR DELETE ON sales
+    FOR EACH ROW EXECUTE PROCEDURE on_log_sales();
+
+# customers
+CREATE OR REPLACE FUNCTION on_log_customers() RETURNS TRIGGER
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+	IF (TG_OP = 'INSERT') THEN
+		INSERT INTO logs VALUES (
+			current_date,
+			current_user,
+			'insert',
+			'customers',
+			inet_server_addr(),
+			inet_client_port()
+		);
+		RETURN NEW;
+	ELSIF (TG_OP = 'UPDATE') THEN
+		INSERT INTO logs VALUES (
+			current_date,
+			current_user,
+			'update',
+			'customers',
+			inet_server_addr(),
+			inet_client_port()
+		);
+		RETURN NEW;
+	ELSIF (TG_OP = 'DELETE') THEN
+		INSERT INTO logs VALUES (
+			current_date,
+			current_user,
+			'delete',
+			'customers',
+			inet_server_addr(),
+			inet_client_port()
+		);
+		RETURN OLD;
+	END IF;
+    RETURN NULL;
+END;$$
+
+CREATE TRIGGER on_log_customers
+AFTER INSERT OR UPDATE OR DELETE ON customers
+    FOR EACH ROW EXECUTE PROCEDURE on_log_customers();
+
+# products
+CREATE OR REPLACE FUNCTION on_log_products() RETURNS TRIGGER
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+	IF (TG_OP = 'INSERT') THEN
+		INSERT INTO logs VALUES (
+			current_date,
+			current_user,
+			'insert',
+			'products',
+			inet_server_addr(),
+			inet_client_port()
+		);
+		RETURN NEW;
+	ELSIF (TG_OP = 'UPDATE') THEN
+		INSERT INTO logs VALUES (
+			current_date,
+			current_user,
+			'update',
+			'products',
+			inet_server_addr(),
+			inet_client_port()
+		);
+		RETURN NEW;
+	ELSIF (TG_OP = 'DELETE') THEN
+		INSERT INTO logs VALUES (
+			current_date,
+			current_user,
+			'delete',
+			'products',
+			inet_server_addr(),
+			inet_client_port()
+		);
+		RETURN OLD;
+	END IF;
+    RETURN NULL;
+END;$$
+
+CREATE TRIGGER on_log_products
+AFTER INSERT OR UPDATE OR DELETE ON products
+    FOR EACH ROW EXECUTE PROCEDURE on_log_products();
+
+# employees
+CREATE OR REPLACE FUNCTION on_log_employees() RETURNS TRIGGER
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+	IF (TG_OP = 'INSERT') THEN
+		INSERT INTO logs VALUES (
+			current_date,
+			current_user,
+			'insert',
+			'employees',
+			inet_server_addr(),
+			inet_client_port()
+		);
+		RETURN NEW;
+	ELSIF (TG_OP = 'UPDATE') THEN
+		INSERT INTO logs VALUES (
+			current_date,
+			current_user,
+			'update',
+			'employees',
+			inet_server_addr(),
+			inet_client_port()
+		);
+		RETURN NEW;
+	ELSIF (TG_OP = 'DELETE') THEN
+		INSERT INTO logs VALUES (
+			current_date,
+			current_user,
+			'delete',
+			'employees',
+			inet_server_addr(),
+			inet_client_port()
+		);
+		RETURN OLD;
+	END IF;
+    RETURN NULL;
+END;$$
+
+CREATE TRIGGER on_log_employees
+AFTER INSERT OR UPDATE OR DELETE ON employees
+    FOR EACH ROW EXECUTE PROCEDURE on_log_employees();
