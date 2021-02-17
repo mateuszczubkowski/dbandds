@@ -339,9 +339,9 @@ print('Współczynnik determinacji R^2 = ', model.score(x,y))
 print('Wartości przewidywane dla zarobków: ', model.predict(x))
 
 # czy liczba sprzedazy ma wplyw na zarobki?
+employees.fillna(method='ffill', inplace=True)
 x = employees.salesnumber.to_numpy().reshape((-1,1))
 y = employees.salary.to_numpy()
-
 model = LinearRegression()
 model.fit(x, y)
 
@@ -368,3 +368,270 @@ model.fit(x, y)
 print('Wartość wyrazu wolnego = ', model.intercept_)
 print('Wartość współczynnika przy x = ', model.coef_)
 print('Współczynnik determinacji R^2 = ', model.score(x,y))
+
+
+def add_employee(firstname, middleinitial, lastname):
+    conn = None
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="dbandds",
+            user="postgres",
+            password="postgres")
+        cur = conn.cursor()
+
+        cur.execute('CALL add_employee(%s,%s,%s)', (firstname, middleinitial, lastname))
+
+        conn.commit()
+
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+def add_customer(firstname, middleinitial, lastname):
+    conn = None
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="dbandds",
+            user="postgres",
+            password="postgres")
+        cur = conn.cursor()
+
+        cur.execute('CALL add_customer(%s,%s,%s)', (firstname, middleinitial, lastname))
+
+        conn.commit()
+
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+def add_sale(salespersonid, customerid, productid, quantity, salesdate):
+    conn = None
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="dbandds",
+            user="postgres",
+            password="postgres")
+        cur = conn.cursor()
+
+        cur.execute('CALL add_sale(%s,%s,%s,%s,%s)', (salespersonid, customerid, productid, quantity, salesdate))
+
+        conn.commit()
+
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+def add_product(name, price):
+    conn = None
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="dbandds",
+            user="postgres",
+            password="postgres")
+        cur = conn.cursor()
+
+        cur.execute('CALL add_product(%s,%s)', (name, price))
+
+        conn.commit()
+
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+def edit_sale(id, salespersonid, customerid, productid, quantity, salesdate):
+    conn = None
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="dbandds",
+            user="postgres",
+            password="postgres")
+        cur = conn.cursor()
+
+        cur.execute('CALL edit_sale(%s,%s,%s,%s,%s,%s)', (id, salespersonid, customerid, productid, quantity, salesdate))
+
+        conn.commit()
+
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+def edit_product(id, name, price):
+    conn = None
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="dbandds",
+            user="postgres",
+            password="postgres")
+        cur = conn.cursor()
+
+        cur.execute('CALL edit_product(%s,%s,%s)', (id, name, price))
+
+        conn.commit()
+
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+def edit_employee(id, firstname, middleinitial, lastname):
+    conn = None
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="dbandds",
+            user="postgres",
+            password="postgres")
+        cur = conn.cursor()
+
+        cur.execute('CALL edit_employee(%s,%s,%s,%s)', (id, firstname, middleinitial, lastname))
+
+        conn.commit()
+
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+def edit_customer(id, firstname, middleinitial, lastname):
+    conn = None
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="dbandds",
+            user="postgres",
+            password="postgres")
+        cur = conn.cursor()
+
+        cur.execute('CALL edit_customer(%s,%s,%s,%s)', (id, firstname, middleinitial, lastname))
+
+        conn.commit()
+
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+def delete_sale(id):
+    conn = None
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="dbandds",
+            user="postgres",
+            password="postgres")
+        cur = conn.cursor()
+
+        cur.execute('CALL delete_sale(%s)', (id))
+
+        conn.commit()
+
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+def delete_product(id):
+    conn = None
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="dbandds",
+            user="postgres",
+            password="postgres")
+        cur = conn.cursor()
+
+        cur.execute('CALL delete_product(%s)', (id))
+
+        conn.commit()
+
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+def delete_employee(id):
+    conn = None
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="dbandds",
+            user="postgres",
+            password="postgres")
+        cur = conn.cursor()
+
+        cur.execute('CALL delete_employee(%s)', (id))
+
+        conn.commit()
+
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+def delete_customer(id):
+    conn = None
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="dbandds",
+            user="postgres",
+            password="postgres")
+        cur = conn.cursor()
+
+        cur.execute('CALL delete_customer(%s)', (id))
+
+        conn.commit()
+
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+# add_product('test', 9)

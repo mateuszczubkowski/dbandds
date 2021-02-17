@@ -484,3 +484,32 @@ END;$$
 CREATE TRIGGER on_log_employees
 AFTER INSERT OR UPDATE OR DELETE ON employees
     FOR EACH ROW EXECUTE PROCEDURE on_log_employees();
+
+# triggery do sprawdzania wartosci
+# price >= 0 
+CREATE OR REPLACE FUNCTION on_insert_product() RETURNS TRIGGER
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+	IF NEW.price < 0 THEN
+		NEW.price := 0;
+	END IF;
+	RETURN NEW;
+END;$$
+	
+
+# quantity > 0
+CREATE OR REPLACE FUNCTION on_insert_sale() RETURNS TRIGGER
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+	IF NEW.quantity < 1 THEN
+		NEW.quantity := 1;
+	END IF;
+	RETURN NEW;
+END;$$
+
+CREATE TRIGGER on_insert_sale
+BEFORE INSERT OR UPDATE ON sales
+    FOR EACH ROW EXECUTE PROCEDURE on_insert_sale();
+
